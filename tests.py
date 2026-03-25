@@ -141,3 +141,41 @@ def test_correct_selected_choices_more_than_max_selections():
     
     with pytest.raises(Exception):
         question.correct_selected_choices([choice1.id, choice2.id])
+        
+@pytest.fixture
+def question_with_choices():
+    question = Question(title='q1', max_selections=2)
+    choice1 = question.add_choice('a', False)
+    choice2 = question.add_choice('b', False)
+    choice3 = question.add_choice('c', False)
+    choice4 = question.add_choice('d', False)
+    return question, choice1, choice2, choice3,choice4
+    
+def test_correct_selected_choices_with_multiple_correct(question_with_choices):
+    question, choice1, choice2, choice3, choice4 = question_with_choices
+
+    question.set_correct_choices([choice1.id, choice2.id])
+
+    result = question.correct_selected_choices([choice1.id, choice2.id])
+
+    assert result == [choice1.id, choice2.id]
+
+def test_partial_selected_choices_with_multiple_correct(question_with_choices):
+    question, choice1, choice2, choice3, choice4 = question_with_choices
+
+    question.set_correct_choices([choice1.id, choice2.id])
+
+    result = question.correct_selected_choices([choice1.id, choice3.id])
+
+    assert result == [choice1.id]
+
+def test_mulitple_remove_choice_with_multiple_choices(question_with_choices):
+    question, choice1, choice2, choice3, choice4 = question_with_choices
+
+    assert len(question.choices) == 4
+
+    question.remove_choice_by_id(choice2.id)
+    question.remove_choice_by_id(choice4.id)
+    assert len(question.choices) == 2
+    assert question.choices[0].id == choice1.id
+    assert question.choices[1].id == choice3.id
